@@ -1,0 +1,8 @@
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - faiss-gpu
+  - numpy
+  - pip:
+    - ann_solo

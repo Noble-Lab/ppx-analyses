@@ -1,0 +1,59 @@
+PROJECT = "PXD009861"
+LIBRARY = (
+    "../resources/massive_human_hcd_unique_targetdecoy_spectrast"
+    "/massive_human_hcd_unique_targetdecoy.splib"
+)
+
+rule all:
+    input: "../results/mass_shifts.png"
+
+
+rule make_figures:
+    input:
+        dynamic("../results/{root}.mztab"),
+        dynamic("../resources/{root}.tsv")
+    output:
+        "../results/mass_shifts.png"
+    notebook:
+        "notebooks/make_figures.ipynb"
+
+
+rule ann_solo:
+    input:
+        "../resources/{root}.mgf",
+        LIBRARY
+    output:
+        "../results/{root}.mztab"
+    shell:
+        """
+        ann_solo {input[1]} {output} {input[0]} \
+            --precursor_tolerance_mass 5 \
+            --precursor_tolerance_mode ppm \
+            --precursor_tolerance_mass_open 500 \
+            --precursor_tolerance_mass_mode Da \
+            --fragment_mz_tolerance 0.02 \
+            --allow_peak_shifts \
+        """
+
+rule get_mgf:
+    output:
+        dynamic("../resources/{root}.mgf")
+    shell:
+        f"ppx --local ../resources {PROJECT} '*293T*.mgf'"
+
+
+rule get_library:
+    output:
+        LIBRARY
+    shell:
+        f"""
+        ppx --local ../resources {PROJECT} 'massive*' |
+        tar -xvf
+        """
+
+
+rule get_msfragger:
+    output:
+        dynamic("../resources/{root}.tsv")
+    shell:
+        f"ppx --local ../resources {PROJECT} '*293T*.tsv'"
