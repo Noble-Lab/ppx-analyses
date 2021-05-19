@@ -1,0 +1,10 @@
+name: plotting
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - numpy
+  - pandas
+  - matplotlib
+  - seaborn
+  - pyteomics

@@ -1,8 +1,22 @@
+name: ann_solo
 channels:
   - pytorch
   - conda-forge
 dependencies:
-  - faiss-gpu
+  - faiss-cpu
   - numpy
+  - matplotlib
+  - numba>=0.41
+  - Cython
+  - ConfigArgParse
+  - joblib
+  - mmh3
+  - numexpr
+  - pandas
+  - pyteomics
+  - scipy
+  - spectrum_utils>=0.3.0
+  - tqdm
+  - pip
   - pip:
     - ann_solo
