@@ -1,4 +1,9 @@
 .snakemake/
+snakemake_master.*
+snakejob.*
+log/
+resources/
+*.mztab
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python

@@ -59,6 +59,7 @@ rule ann_solo_open:
             --precursor_tolerance_mode_open Da \
             --fragment_mz_tolerance 0.02 \
             --allow_peak_shifts \
+            --no_gpu \
         2> {log}
         """
 
@@ -71,6 +72,10 @@ rule ann_solo_narrow:
         f"../resources/narrow.{ROOTS[0]}.mztab"
     log:
         "logs/narrow-ann_solo.log"
+    resources:
+        h_rt="7:0:0",
+        mfree="4G",
+        cpus="12",
     shell:
         """
         cp {input} ${{TMP}} &&
@@ -80,7 +85,8 @@ rule ann_solo_narrow:
             {output} \
             --precursor_tolerance_mass 5 \
             --precursor_tolerance_mode ppm \
-            --fragmenet_mz_tolerance 0.02 \
+            --fragment_mz_tolerance 0.02 \
+            --no_gpu \
             2> {log} &&
         cp ${{TMP}}/*.spcfg ../resources &&
         cp ${{TMP}}/*.idxann ../resources
