@@ -40,6 +40,8 @@ rule ann_solo_open:
         "envs/ann_solo.yaml"
     log:
         "logs/ann_solo.{root}.log"
+    threads:
+        workflow.cores
     params:
         tmp = tempfile.gettempdir()
     resources:
@@ -79,7 +81,9 @@ rule ann_solo_narrow:
         mfree="12G",
         cpus="3",
         gpgpu="TRUE",
-        cuda="0"
+        cuda="0",
+    threads:
+        workflow.cores
     params:
         tmp = tempfile.gettempdir()
     shell:
