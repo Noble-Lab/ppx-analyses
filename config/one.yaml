@@ -1,0 +1,3 @@
+project: "PXD009861"
+pattern: "b1941_293T*.mgf"
+library: "massive_human_hcd_unique_targetdecoy"
