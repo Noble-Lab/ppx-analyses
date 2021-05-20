@@ -121,7 +121,7 @@ rule get_library:
         f"../resources/{config['library']}.splib"
     shell:
         """
-        ppx --local ../resources {config['project']} 'massive*' &&
+        ppx --local ../resources {config[project]} 'massive*' &&
         cd ../resources &&
         tar -xvf massive*.tar.gz
         """
