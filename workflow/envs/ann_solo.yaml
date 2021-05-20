@@ -3,8 +3,7 @@ channels:
   - pytorch
   - conda-forge
 dependencies:
-  - faiss-gpu
-  - cudatoolkit=11.1
+  - faiss-cpu
   - numpy
   - matplotlib
   - numba>=0.41

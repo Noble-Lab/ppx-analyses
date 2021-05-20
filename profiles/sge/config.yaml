@@ -1,7 +1,5 @@
 cluster:
   qsub -l h_rt={resources.h_rt},mfree={resources.mfree}
-  -l gpgpu={resources.gpgpu},cuda={resources.cuda},testing={resources.testing}
-  -l hostname="n029|n030|n031|n032"
   -pe serial {resources.cpus} -cwd -q {resources.queue}
 jobs: 50
 
@@ -11,6 +9,3 @@ default-resources:
   - mfree="8G"
   - cpus="1"
   - queue="noble-short.q"
-  - gpgpu="FALSE"
-  - cuda="0"
-  - testing="FALSE"

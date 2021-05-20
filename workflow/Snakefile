@@ -47,9 +47,7 @@ rule ann_solo_open:
     resources:
         h_rt="7:0:0",
         mfree="12G",
-        cpus="3",
-        gpgpu="TRUE",
-        cuda="1",
+        cpus="4",
     shell:
         """
         cp {input[0]} {input[1]} ../resources/*.idxann \
@@ -64,8 +62,8 @@ rule ann_solo_open:
             --precursor_tolerance_mode_open Da \
             --fragment_mz_tolerance 0.02 \
             --allow_peak_shifts \
-            --hash_len 400 \
-        2> {log}
+            --no_gpu \
+            2> {log}
         """
 
 
@@ -79,9 +77,7 @@ rule ann_solo_narrow:
     resources:
         h_rt="7:0:0",
         mfree="12G",
-        cpus="3",
-        gpgpu="TRUE",
-        cuda="0",
+        cpus="4",
     threads:
         workflow.cores
     params:
@@ -97,7 +93,6 @@ rule ann_solo_narrow:
             --precursor_tolerance_mass 5 \
             --precursor_tolerance_mode ppm \
             --fragment_mz_tolerance 0.02 \
-            --hash_len 400 \
             --no_gpu \
             2> {log} &&
         cp {params.tmp}/*.spcfg ../resources &&
