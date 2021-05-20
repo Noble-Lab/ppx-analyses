@@ -34,7 +34,7 @@ rule ann_solo_open:
     input:
         f"../resources/{LIBRARY}.splib",
         "../resources/{root}.mgf",
-        f"../resources/narrow.{ROOTS[0]}.mztab"
+        "../resources/lib-build.mztab"
     output:
         "../results/{root}.mztab"
     conda:
@@ -43,8 +43,10 @@ rule ann_solo_open:
         "logs/ann_solo.{root}.log"
     resources:
         h_rt="7:0:0",
-        mfree="4G",
-        cpus="12",
+        mfree="12G",
+        cpus="4",
+        gpgpu="TRUE",
+        cuda="1",
     shell:
         """
         cp {input[0]} {input[1]} ../resources/*.idxann \
@@ -59,7 +61,7 @@ rule ann_solo_open:
             --precursor_tolerance_mode_open Da \
             --fragment_mz_tolerance 0.02 \
             --allow_peak_shifts \
-            --no_gpu \
+            --hash_len 400 \
         2> {log}
         """
 
@@ -67,9 +69,8 @@ rule ann_solo_open:
 rule ann_solo_narrow:
     input:
         f"../resources/{LIBRARY}.splib",
-        f"../resources/{ROOTS[0]}.mgf",
     output:
-        f"../resources/narrow.{ROOTS[0]}.mztab"
+        f"../resources/lib-build.mztab"
     log:
         "logs/narrow-ann_solo.log"
     resources:
@@ -79,13 +80,15 @@ rule ann_solo_narrow:
     shell:
         """
         cp {input} ${{TMP}} &&
+        touch ${{TMP}}/empty.mgf &&
         ann_solo \
             ${{TMP}}/{LIBRARY}.splib \
-            ${{TMP}}/{ROOTS[0]}.mgf \
+            ${{TMP}}/empty.mgf \
             {output} \
             --precursor_tolerance_mass 5 \
             --precursor_tolerance_mode ppm \
             --fragment_mz_tolerance 0.02 \
+            --hach_len 400 \
             --no_gpu \
             2> {log} &&
         cp ${{TMP}}/*.spcfg ../resources &&

@@ -1,5 +1,5 @@
 .snakemake/
-snakemake_master.*
+snakemake_*
 snakejob.*
 log/
 resources/
