@@ -28,7 +28,7 @@ rule make_figures:
 
 rule ann_solo_open:
     input:
-        f"../resources/{LIBRARY}.splib",
+        f"../resources/{config['library']}.splib",
         "../resources/{root}.mgf",
         "../resources/lib-build.mztab"
     output:
@@ -48,7 +48,7 @@ rule ann_solo_open:
         cp {input[0]} {input[1]} ../resources/*.idxann \
             ../resources/*.spcfg ${{TMP}} &&
         ann_solo \
-            ${{TMP}}/{LIBRARY}.splib \
+            ${{TMP}}/{config[library]}.splib \
             ${{TMP}}/{wildcards.root}.mgf \
             {output} \
             --precursor_tolerance_mass 5 \
@@ -64,7 +64,7 @@ rule ann_solo_open:
 
 rule ann_solo_narrow:
     input:
-        f"../resources/{LIBRARY}.splib",
+        f"../resources/{config['library']}.splib",
     output:
         f"../resources/lib-build.mztab"
     log:
@@ -80,7 +80,7 @@ rule ann_solo_narrow:
         cp {input} ${{TMP}} &&
         touch ${{TMP}}/empty.mgf &&
         ann_solo \
-            ${{TMP}}/{LIBRARY}.splib \
+            ${{TMP}}/{config[library]}.splib \
             ${{TMP}}/empty.mgf \
             {output} \
             --precursor_tolerance_mass 5 \
@@ -98,7 +98,7 @@ rule get_msfragger:
     output:
         expand("../resources/{root}.tsv", root=file_roots())
     run:
-        proj = ppx.find_project(PROJECT, local="../resources")
+        proj = ppx.find_project(config["project"], local="../resources")
         proj.download([f.split("/")[-1] for f in output])
 
 
@@ -106,16 +106,16 @@ rule get_mgf:
     output:
         expand("../resources/{root}.mgf", root=file_roots())
     run:
-        proj = ppx.find_project(PROJECT, local="../resources")
+        proj = ppx.find_project(config["project"], local="../resources")
         proj.download([f.split("/")[-1] for f in output])
 
 
 rule get_library:
     output:
-        "../resources/{LIBRARY}.splib"
+        "../resources/{config['library']}.splib"
     shell:
         """
-        ppx --local ../resources {PROJECT} 'massive*' &&
+        ppx --local ../resources {config['project']} 'massive*' &&
         cd ../resources &&
         tar -xvf massive*.tar.gz
         """
