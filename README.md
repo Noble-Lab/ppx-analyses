@@ -77,7 +77,7 @@ In this example, we'll use `--configfile config/one.yaml`, which will restrict
 our analysis to a single MGF file:
 
 ``` sh
-$ snakemake -j -d workflow --use-conda --config-file config/one.yaml
+$ snakemake -j -d workflow --use-conda --configfile config/one.yaml
 ```
 
 Here is what each parameter does:
@@ -88,7 +88,7 @@ Here is what each parameter does:
   `workflow` directory. This is where our `Snakefile` is.
 - `--use-conda`: Tells Snakemake that we want it to handle setting up conda
   environment, such as for ANN-SoLo.
-- `--config-file config/one.yaml`: Specifies a config file, other than the 
+- `--configfile config/one.yaml`: Specifies a config file, other than the 
   default one. The `config/one.yaml` file changes the workflow to only download
   and search a single MGF file, instead of all of them.
 

@@ -118,7 +118,7 @@ rule get_mgf:
 
 rule get_library:
     output:
-        "../resources/{config['library']}.splib"
+        f"../resources/{config['library']}.splib"
     shell:
         """
         ppx --local ../resources {config['project']} 'massive*' &&
