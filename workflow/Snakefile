@@ -1,3 +1,6 @@
+import os
+import tempfile
+
 import ppx
 
 configfile: "../config/all.yaml"
@@ -37,19 +40,21 @@ rule ann_solo_open:
         "envs/ann_solo.yaml"
     log:
         "logs/ann_solo.{root}.log"
+    params:
+        tmp = tempfile.gettempdir()
     resources:
         h_rt="7:0:0",
         mfree="12G",
-        cpus="4",
+        cpus="3",
         gpgpu="TRUE",
         cuda="1",
     shell:
         """
         cp {input[0]} {input[1]} ../resources/*.idxann \
-            ../resources/*.spcfg ${{TMP}} &&
+            ../resources/*.spcfg {params.tmp} &&
         ann_solo \
-            ${{TMP}}/{config[library]}.splib \
-            ${{TMP}}/{wildcards.root}.mgf \
+            {params.tmp}/{config[library]}.splib \
+            {params.tmp}/{wildcards.root}.mgf \
             {output} \
             --precursor_tolerance_mass 5 \
             --precursor_tolerance_mode ppm \
@@ -72,16 +77,18 @@ rule ann_solo_narrow:
     resources:
         h_rt="7:0:0",
         mfree="12G",
-        cpus="4",
+        cpus="3",
         gpgpu="TRUE",
         cuda="0"
+    params:
+        tmp = tempfile.gettempdir()
     shell:
         """
-        cp {input} ${{TMP}} &&
-        touch ${{TMP}}/empty.mgf &&
+        cp {input} {params.tmp} &&
+        touch {params.tmp}/empty.mgf &&
         ann_solo \
-            ${{TMP}}/{config[library]}.splib \
-            ${{TMP}}/empty.mgf \
+            {params.tmp}/{config[library]}.splib \
+            {params.tmp}/empty.mgf \
             {output} \
             --precursor_tolerance_mass 5 \
             --precursor_tolerance_mode ppm \
@@ -89,8 +96,8 @@ rule ann_solo_narrow:
             --hash_len 400 \
             --no_gpu \
             2> {log} &&
-        cp ${{TMP}}/*.spcfg ../resources &&
-        cp ${{TMP}}/*.idxann ../resources
+        cp {params.tmp}/*.spcfg ../resources &&
+        cp {params.tmp}/*.idxann ../resources
         """
 
 

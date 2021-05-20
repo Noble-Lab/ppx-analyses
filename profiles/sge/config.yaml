@@ -1,6 +1,7 @@
 cluster:
   qsub -l h_rt={resources.h_rt},mfree={resources.mfree}
   -l gpgpu={resources.gpgpu},cuda={resources.cuda},testing={resources.testing}
+  -l hostname="n029|n030|n031|n032"
   -pe serial {resources.cpus} -cwd -q {resources.queue}
 jobs: 50
 
