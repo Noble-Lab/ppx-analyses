@@ -109,7 +109,9 @@ rule get_msfragger:
     output:
         expand("../resources/{root}.tsv", root=file_roots())
     run:
-        proj = ppx.find_project(config["project"], local="../resources")
+        proj = ppx.find_project(
+            config["project"], local="../resources", repo="PRIDE",
+        )
         proj.download([f.split("/")[-1] for f in output])
 
 
@@ -117,7 +119,9 @@ rule get_mgf:
     output:
         expand("../resources/{root}.mgf", root=file_roots())
     run:
-        proj = ppx.find_project(config["project"], local="../resources")
+        proj = ppx.find_project(
+            config["project"], local="../resources", repo="PRIDE",
+        )
         proj.download([f.split("/")[-1] for f in output])
 
 
