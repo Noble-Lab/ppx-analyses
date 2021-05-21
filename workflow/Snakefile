@@ -72,6 +72,8 @@ rule ann_solo_narrow:
         f"../resources/{config['library']}.splib",
     output:
         f"../resources/lib-build.mztab"
+    conda:
+        "envs/ann_solo.yaml"
     log:
         "logs/narrow-ann_solo.log"
     resources:
