@@ -1,5 +1,5 @@
 cluster:
-  qsub -l h_rt={resources.h_rt},mfree={resources.mfree}
+  qsub -l h_rt={resources.h_rt},mfree={resources.mfree},gpgpu={resources.gpu}
   -pe serial {resources.cpus} -cwd -q {resources.queue}
 jobs: 50
 
@@ -8,4 +8,5 @@ default-resources:
   - h_rt="8:0:0"
   - mfree="8G"
   - cpus="1"
+  - gpu="FALSE"
   - queue="noble-short.q"

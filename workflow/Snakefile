@@ -33,7 +33,7 @@ rule ann_solo_open:
     input:
         f"../resources/{config['library']}.splib",
         "../resources/{root}.mgf",
-        "../resources/lib-build.mztab"
+        f"../resources/{config['library']}.mztab"
     output:
         "../results/{root}.mztab"
     conda:
@@ -46,8 +46,9 @@ rule ann_solo_open:
         tmp = tempfile.gettempdir()
     resources:
         h_rt="7:0:0",
-        mfree="12G",
-        cpus="4",
+        mfree="20G",
+        cpus="3",
+        gpu="TRUE,cuda=1,cuda_gen_fast=20"
     shell:
         """
         cp {input[0]} {input[1]} ../resources/*.idxann \
@@ -62,7 +63,8 @@ rule ann_solo_open:
             --precursor_tolerance_mode_open Da \
             --fragment_mz_tolerance 0.02 \
             --allow_peak_shifts \
-            --no_gpu \
+            --batch_size 8192 \
+            --hash_len 400 \
             2> {log}
         """
 
@@ -71,7 +73,7 @@ rule ann_solo_narrow:
     input:
         f"../resources/{config['library']}.splib",
     output:
-        f"../resources/lib-build.mztab"
+        f"../resources/{config['library']}.mztab"
     conda:
         "envs/ann_solo.yaml"
     log:
@@ -95,6 +97,7 @@ rule ann_solo_narrow:
             --precursor_tolerance_mass 5 \
             --precursor_tolerance_mode ppm \
             --fragment_mz_tolerance 0.02 \
+            --hash_len 400 \
             --no_gpu \
             2> {log} &&
         cp {params.tmp}/*.spcfg ../resources &&
