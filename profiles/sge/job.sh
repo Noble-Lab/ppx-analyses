@@ -5,4 +5,4 @@
 set -euo pipefail
 
 cd workflow
-snakemake --profile ../profiles/sge --use-conda
+snakemake --profile ../profiles/sge --use-conda --config gpu=True

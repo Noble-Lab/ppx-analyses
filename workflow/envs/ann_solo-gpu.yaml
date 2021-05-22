@@ -1,0 +1,29 @@
+name: ann_solo-gpu
+channels:
+  - pytorch
+  - bioconda
+  - conda-forge
+dependencies:
+  - python>=3.6
+  - jupyter>=1.0
+  - jupyterlab_code_formatter>=1.4
+  - faiss-gpu
+  - cudatoolkit>=11.2
+  - numpy
+  - pandas
+  - matplotlib
+  - seaborn
+  - numba>=0.41
+  - Cython
+  - ConfigArgParse
+  - joblib
+  - mmh3
+  - numexpr
+  - pandas
+  - pyteomics
+  - scipy
+  - spectrum_utils>=0.3.0
+  - tqdm
+  - pip
+  - pip:
+    - ann_solo
