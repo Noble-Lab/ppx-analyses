@@ -1,5 +1,5 @@
 # Name of this configuration
-name: "chick"
+name: "iPRG2012"
 
 # The project identifier:
 project: "PXD009861"
@@ -8,20 +8,20 @@ project: "PXD009861"
 repo: "PRIDE"
 
 # The glob pattern used to fine the MGF files:
-mgf_pattern: "b1941_293T*.mgf"
+mgf_pattern: "iPRG2012.mgf"
 
 # The name of the spectral library:
-library: "massive_human_hcd_unique_targetdecoy.splib"
+library: "human_yeast_targetdecoy.splib"
 
 # The pattern to download the library.
 # Note this is different from library because it is a gzipped tar archive.
-library_pattern: "massive*"
+library_pattern: "human_yeast*"
 
 # Use a GPU?
 gpu: False
 
 # The ANN-SoLo config file:
-search_conf: "ann_solo-chick.ini"
+search_conf: "ann_solo-iprg.ini"
 
 # Download previous results for comparison?
-compare: True
+compare: False

@@ -8,7 +8,7 @@ project: "PXD009861"
 repo: "PRIDE"
 
 # The glob pattern used to fine the MGF files:
-mgf_pattern: "b1941_293T*.mgf"
+mgf_pattern: "*293T*.mgf"
 
 # The name of the spectral library:
 library: "massive_human_hcd_unique_targetdecoy.splib"

@@ -1,4 +1,0 @@
-project: "PXD009861"
-pattern: "*293T*.mgf"
-library: "massive_human_hcd_unique_targetdecoy"
-gpu: False

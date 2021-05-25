@@ -1,97 +1,112 @@
-import os
 import tempfile
+from pathlib import Path
 
 import ppx
 
-configfile: "../config/all.yaml"
-device = ("gpu" if config["gpu"] else "cpu")
+configfile: "../config/chick.yaml"
 
-def file_roots():
-    """List the MGF file roots associated with the project repository"""
-    proj = ppx.find_project(config["project"], repo="PRIDE")
-    mgf = proj.remote_files(config["pattern"])
-    return [f.replace(".mgf", "") for f in mgf]
+def get_files():
+    """Get the various input and output files based on the configuration.
+
+    Returns
+    -------
+    mgf : list of str
+        The MGF files associated with the project.
+    library_archive : str
+        The gzipped tar archive containing the spectral library.
+    mztab : list of Path objects
+        The expecte mztab outputs from ANN-SoLo
+    local : Path object
+        The local directory in which to download the project data.
+    """
+    proj = ppx.find_project(config["project"], repo=config["repo"])
+    mgf = proj.remote_files(config["mgf_pattern"])
+    library_archive = proj.remote_files(config["library_pattern"])[0]
+    mztab = ["../results/" + f.replace(".mgf", ".mztab") for f in mgf]
+    return mgf, library_archive, mztab, proj.local
+
+
+MGF, LIBRARY_ARCHIVE, MZTAB, LOCAL = get_files()
+DEVICE = "gpu" if config["gpu"] else "cpu"
+LIBRARY = Path("../resources", config["library"])
 
 
 # Snakemake rules -------------------------------------------------------------
 rule all:
-    input: "../results/mass_shifts.png"
-
-
-rule make_figures:
     input:
-        expand("../results/{root}.mztab", root=file_roots()),
-        expand("../resources/{root}.tsv", root=file_roots()),
-    output:
-        "../results/mass_shifts.png"
-    conda:
-        f"envs/ann_solo-{device}.yaml"
-    log:
-        notebook="logs/make_figures.ipynb"
+        f"../results/{config['name']}-mass_shifts.png",
+        f"../results/{config['name']}-comp.png" if config["compare"] else [],
+
+
+rule mass_shift_figure:
+    input: MZTAB
+    output: f"../results/{config['name']}-mass_shifts.png"
+    conda: f"envs/ann_solo-{DEVICE}.yaml"
     resources:
         h_rt="1:0:0",
         mfree="10G",
         cpus="4",
     notebook:
-        "notebooks/make_figures.ipynb"
+        "notebooks/mass_shift_figure.py.ipynb"
 
+
+rule comparison_figure:
+    input:
+        MZTAB,
+        [LOCAL / Path(f).name for f in MZTAB],
+    output: f"../results/{config['name']}-comp.png"
+    conda: f"envs/ann_solo-{DEVICE}.yaml"
+    resources:
+        h_rt="1:0:0",
+        mfree="10G",
+        cpus="4",
+    log:
+        "logs/notebooks/processed_comparison_figure.ipynb"
+    notebook:
+        "notebooks/comparison_figure.py.ipynb"
 
 rule ann_solo_open:
     input:
-        f"../resources/{config['library']}.splib",
-        "../resources/{root}.mgf",
-        f"../resources/{config['library']}.mztab"
-    output:
-        "../results/{root}.mztab"
-    conda:
-        f"envs/ann_solo-{device}.yaml"
-    log:
-        "logs/ann_solo.{root}.log"
-    threads:
-        workflow.cores
+        LIBRARY,
+        LOCAL / "{root}.mgf",
+        Path("../results", LIBRARY.stem + ".mztab"),
+    output: "../results/{root}.mztab"
+    conda: f"envs/ann_solo-{DEVICE}.yaml"
+    log: "logs/ann_solo.{root}.log"
+    threads: workflow.cores
     params:
+        idxann = Path("../resources", LIBRARY.stem + "*.idxann"),
+        spcfg = Path("../resources", LIBRARY.stem + "*.spcfg"),
         tmp = tempfile.gettempdir(),
-        batch_size = (8192 if config["gpu"] else 128)
+        batch_size = (1024 if config["gpu"] else 128),
     resources:
         h_rt="7:0:0",
         mfree="20G",
         cpus="3",
-        gpu="TRUE,cuda=1,cuda_gen_fast=20"
+        gpu="TRUE,cuda=1,cuda_gen_fast=20",
     shell:
         """
-        cp {input[0]} {input[1]} ../resources/*.idxann \
-            ../resources/*.spcfg {params.tmp} &&
+        cp {input} {params.idxann} {params.spcfg} {params.tmp} &&
         ann_solo \
-            {params.tmp}/{config[library]}.splib \
+            {params.tmp}/{config[library]} \
             {params.tmp}/{wildcards.root}.mgf \
             {output} \
-            --precursor_tolerance_mass 5 \
-            --precursor_tolerance_mode ppm \
-            --precursor_tolerance_mass_open 500 \
-            --precursor_tolerance_mode_open Da \
-            --fragment_mz_tolerance 0.02 \
-            --allow_peak_shifts \
+            --config ../config/{config[search_conf]} \
             --batch_size {params.batch_size} \
-            --hash_len 400 \
             2> {log}
         """
 
 
 rule ann_solo_narrow:
-    input:
-        f"../resources/{config['library']}.splib",
-    output:
-        f"../resources/{config['library']}.mztab"
-    conda:
-        f"envs/ann_solo-{device}.yaml"
-    log:
-        "logs/narrow-ann_solo.log"
+    input: LIBRARY
+    output: Path("../results", LIBRARY.stem + ".mztab")
+    conda: f"envs/ann_solo-{DEVICE}.yaml"
+    log: "logs/narrow-ann_solo.log"
     resources:
         h_rt="7:0:0",
         mfree="12G",
         cpus="4",
-    threads:
-        workflow.cores
+    threads: workflow.cores
     params:
         tmp = tempfile.gettempdir()
     shell:
@@ -99,46 +114,35 @@ rule ann_solo_narrow:
         cp {input} {params.tmp} &&
         touch {params.tmp}/empty.mgf &&
         ann_solo \
-            {params.tmp}/{config[library]}.splib \
+            {params.tmp}/{config[library]} \
             {params.tmp}/empty.mgf \
             {output} \
-            --precursor_tolerance_mass 5 \
-            --precursor_tolerance_mode ppm \
-            --fragment_mz_tolerance 0.02 \
-            --hash_len 400 \
+            --config ../config/{config[search_conf]} \
             --no_gpu \
             2> {log} &&
-        cp {params.tmp}/*.spcfg ../resources &&
-        cp {params.tmp}/*.idxann ../resources
+        cp {params.tmp}/*.spcfg {params.tmp}/*.idxann ../resources
         """
 
 
-rule get_msfragger:
+rule download:
     output:
-        expand("../resources/{root}.tsv", root=file_roots())
+        expand(LOCAL / "{fname}", fname=MGF),
+        LOCAL / LIBRARY_ARCHIVE,
+    threads: workflow.cores
     run:
-        proj = ppx.find_project(
-            config["project"], local="../resources", repo="PRIDE",
-        )
-        proj.download([f.split("/")[-1] for f in output])
+        proj = ppx.find_project(config["project"], repo="PRIDE")
+        proj.download([Path(f).name for f in output])
 
 
-rule get_mgf:
-    output:
-        expand("../resources/{root}.mgf", root=file_roots())
+rule download_old_results:
+    output: [LOCAL / Path(f).name for f in MZTAB]
+    threads: workflow.cores
     run:
-        proj = ppx.find_project(
-            config["project"], local="../resources", repo="PRIDE",
-        )
-        proj.download([f.split("/")[-1] for f in output])
+        proj = ppx.find_project(config["project"], repo="PRIDE")
+        proj.download([Path(f).name for f in output])
 
 
-rule get_library:
-    output:
-        f"../resources/{config['library']}.splib"
-    shell:
-        """
-        ppx --local ../resources {config[project]} 'massive*' &&
-        cd ../resources &&
-        tar -xvf massive*.tar.gz
-        """
+rule unpack:
+    input: LOCAL / LIBRARY_ARCHIVE
+    output: LIBRARY
+    shell: "mkdir -p ../resources && tar -xvf {input} -C ../resources"
