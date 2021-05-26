@@ -26,4 +26,4 @@ dependencies:
   - tqdm
   - pip
   - pip:
-    - ann_solo
+    - ann_solo==0.3.3

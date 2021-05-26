@@ -4,6 +4,6 @@ channels:
   - conda-forge
 dependencies:
   - python>=3.6
-  - ppx>=1.1.0
+  - ppx==1.1.0
   - snakemake>=6.1.1
   - mamba
