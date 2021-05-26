@@ -1,4 +1,4 @@
-name: ppx-analyses
+name: ppx-workflow
 channels:
   - bioconda
   - conda-forge

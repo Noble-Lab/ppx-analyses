@@ -5,16 +5,16 @@ stored in proteomics data repositories, such as PRIDE and MassIVE. In doing
 so, ppx enhances the reproducibility of proteomics analyses. Here, we provide
 an example [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow,
 which in part reproduces the open modification search results from 
-[ANN-SoLo](https://github.com/bittremieux/ANN-SoLo) presented by Bittremieux,
-et al. 
+[ANN-SoLo](https://github.com/bittremieux/ANN-SoLo) presented by [Bittremieux 
+et al.](https://doi.org/10.1021/acs.jproteome.8b00359)
 
 This workflow uses ppx to download the MGF mass spectrometry data files and the
 spectral library from the original publication's project on PRIDE Archive,
 [PXD009861](https://www.ebi.ac.uk/pride/archive/projects/PXD009861). These MGF
 files are then searched using ANN-SoLo. Additionally, the workflow downloads
-the [MSFragger](https://msfragger.nesvilab.org/) result files created in the
-original publication (`*.tsv`). Finally, the workflow a single figure
-displaying the modification mass shifts detected by ANN-SoLo and MSFragger.
+the original ANN-SoLo result files described in the original publication 
+(`*.mztab`). Finally, the workflow creates figures displaying the modification 
+mass shifts detected by the different ANN-SoLo versions.
 
 ## Prerequisites  
 
@@ -49,13 +49,13 @@ git version 2.31.1
 We'll use git to download this workflow from GitHub:
 
 ``` sh
-$ git clone https://github.com/Noble-Lab/ppx-analyses.git
-$ cd ppx-analyses
+$ git clone https://github.com/Noble-Lab/ppx-workflow.git
+$ cd ppx-workflow
 ```
 
 Alternatively, you can use click `Code -> Download ZIP` in the [GitHub
-repository](https://github.com/Noble-Lab/ppx-analyses), unpack the zip archive,
-and navigate to the new `ppx-analyses` directory in your terminal.
+repository](https://github.com/Noble-Lab/ppx-workflow), unpack the zip archive,
+and navigate to the new `ppx-workflow` directory in your terminal.
 
 ### Create a conda environment
 
@@ -64,14 +64,14 @@ ppx, and their dependencies:
 
 ``` sh
 $ conda env create -f environment.yaml
-$ conda activate ppx-analyses
+$ conda activate ppx-workflow
 ```
 
 ### Execute the workflow
 
-Now we'll use Snakemake to execute our workflow. Snakemake will manage install
-ANN-SoLo and other dependencies, then run all of the steps required for our
-analyses.
+Now we'll use Snakemake to execute our workflow. Snakemake will manage the 
+installation of ANN-SoLo and other dependencies, then run all of the steps 
+required for our analyses.
 
 In this example, we'll use `--configfile config/one.yaml`, which will restrict
 our analysis to a single MGF file:
@@ -86,14 +86,14 @@ Here is what each parameter does:
   as `-j4` to use 4 cores.
 - `-d workflow`: Tells Snakemake that our working directory should be the 
   `workflow` directory. This is where our `Snakefile` is.
-- `--use-conda`: Tells Snakemake that we want it to handle setting up conda
+- `--use-conda`: Tells Snakemake that we want it to handle setting up a conda
   environment, such as for ANN-SoLo.
 - `--configfile config/one.yaml`: Specifies a config file, other than the 
   default one. The `config/one.yaml` file changes the workflow to only download
   and search a single MGF file, instead of all of them.
 
 Alternatively, you could analyze all of the files as we did in the ppx paper.
-Note that this could take awhile depending on your system:
+Note that this could take a while depending on your system:
 
 ``` sh
 $ snakemake -j -d workflow --use-conda
@@ -104,6 +104,6 @@ $ snakemake -j -d workflow --use-conda
 We've described how to run this workflow that uses ppx, ANN-SoLo, and Snakemake
 to reproduce a previously published analysis with data shared in PRIDE Archive.
 Our intention with this workflow is that it would be an illustration of how ppx
-can help create reproducible and sharable proteomics analyses.
+can help create reproducible and shareable proteomics analyses.
 
 To find out more about ppx, see our documentation: https://ppx.readthedocs.io
