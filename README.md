@@ -92,12 +92,26 @@ Here is what each parameter does:
   default one. The `config/one.yaml` file changes the workflow to only download
   and search a single MGF file, instead of all of them.
 
-Alternatively, you could analyze all of the files as we did in the ppx paper.
+Alternatively, you could analyze all of the MGF files as we did in the paper.
 Note that this could take a while depending on your system:
 
 ``` sh
 $ snakemake -j -d workflow --use-conda
 ```
+
+### Using a GPU
+
+If you have an NVIDIA GPU available with at least 8 Gb of memory, you can use
+it during the ANN-SoLo searches in this workflow. By default, the workflow will
+only use the CPU. Enabling the GPU requires an additional parameter:
+
+``` sh
+$ snakemake -j -d workflow --use-conda --config GPU=True
+```
+
+Note that we've setup the work flow to use a CUDA Toolkit version of 11.2. If
+this is not suitable for your system, you should adjust it in the [ANN-SoLo GPU
+conda environment](workflow/envs/ann_solo-gpu.yaml).
 
 ## Conclusion  
 
